@@ -22,6 +22,10 @@ public:
     EditorMode* getMode() const;
     void setMode(EditorMode *newMode);
     void mousePressEvent(QMouseEvent  *event);
+    void mouseMoveEvent(QMouseEvent *event);
+
+signals:
+    void mouseMoveCb(int x, int y);
 };
 
 #endif // EDITORVIEW_H

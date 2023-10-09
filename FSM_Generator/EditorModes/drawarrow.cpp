@@ -1,4 +1,5 @@
 #include "drawarrow.h"
+#include "../GraphicsItems/arrow.h"
 #include<QGraphicsLineItem>
 void Mode_DrawArrow::Action_Click(float x, float y)
 {
@@ -8,9 +9,9 @@ void Mode_DrawArrow::Action_Click(float x, float y)
     }
     else
     {
-        QLine line =  QLine(*pointBuffer.get(), QPoint(x,y));
-        QGraphicsLineItem* lineItem = new QGraphicsLineItem(line);
-        view->scene()->addItem(lineItem);
+        QLineF line =  QLineF(*pointBuffer.get(), QPoint(x,y));
+        Arrow* arrow= new Arrow(nullptr,  &line, 100);
+        view->scene()->addItem(arrow);
         pointBuffer.reset();
     }
 }
