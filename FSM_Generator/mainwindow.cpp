@@ -2,6 +2,7 @@
 #include "./ui_mainwindow.h"
 #include"toolbar.h"
 #include "editorview.h"
+#include <QMouseEvent>
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -35,4 +36,29 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event)
 {
 
     //editor_view->mouseMoveEvent(event);
+}
+
+
+
+void MainWindow::mousePressEvent(QMouseEvent *event)
+{
+
+    // get coordinates as integers
+    int x = event->pos().x();
+    int y = event->pos().y();
+    // pass the event to the current mode handler
+    if(event->buttons() & Qt::LeftButton)
+    {
+
+    }
+    else if(event->buttons() & Qt::MiddleButton)
+    {
+
+    }
+    else if(event->buttons() & Qt::RightButton)
+    {
+
+    }
+    // propagate event
+    QMainWindow::mousePressEvent(event);
 }

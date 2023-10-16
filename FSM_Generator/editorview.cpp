@@ -2,8 +2,8 @@
 #include "EditorModes/drawrect.h"
 #include "editorview_modes.h"
 #include "qgraphicsitem.h"
-
-#include <QMouseEvent>>
+#include <QScrollBar>
+#include <QMouseEvent>
 
 /**
  * @brief EditorView::EditorView
@@ -65,17 +65,111 @@ void EditorView::mousePressEvent(QMouseEvent *event)
     int x = p.x();
     int y = p.y();
     // pass the event to the current mode handler
-    mode.get()->Action_Click(x,y);
+    if(event->buttons() & Qt::LeftButton)
+    {
+        mode.get()->Event_MouseLeftClick(x,y, event->buttons(), event->modifiers());
+    }
+    else if(event->buttons() & Qt::MiddleButton)
+    {
+
+    }
+    else if(event->buttons() & Qt::RightButton)
+    {
+        mode.get()->Event_MouseRightClick(event->pos().x(),event->pos().y(), event->buttons(), event->modifiers());
+    }
+    // propagate event
+    QGraphicsView::mousePressEvent(event);
 }
 
+/**
+ * @brief EditorView::mouseMoveEvent tracks mouse movement
+ * @param event
+ */
 void EditorView::mouseMoveEvent(QMouseEvent *event)
 {
     // adapt coordinate system to scene
     QPointF p = this->mapToScene(event->pos());
+
     // get coordinates as integers
     int x = p.x();
     int y = p.y();
+
     // propagate mouse movement data
     emit mouseMoveCb(x,y);
+
+    if(event->buttons() & Qt::MiddleButton)
+    {
+        // compute distance from last position recorded
+        QPointF delta = event->globalPosition()-pLast ;
+        // compute new scrollbar x position
+        int newX = this->horizontalScrollBar()->value() + delta.x();
+        // compute new vertical scrollbar position
+        int newY = this->verticalScrollBar()->value() + delta.y();
+        // apply horizontal scrollbar
+        this->horizontalScrollBar()->setValue(newX);
+        // apply vertical scrollbar
+        this->verticalScrollBar()->setValue(newY);
+        //this->translate(delta.x(),delta.y());
+    }
+    // notify the current working mode
+    mode.get()->Event_MouseMove(x,y,event->buttons(), event->modifiers());
+    // update last mouse position
+    pLast = event->globalPosition();
+    // propagate event
     QGraphicsView::mouseMoveEvent(event);
+}
+
+/**
+ * @brief EditorView::mouseDoubleClickEvent records a double mouse press and propagates it according to the active mode
+ * @param e event details
+ */
+void EditorView::mouseDoubleClickEvent(QMouseEvent *e)
+{
+    //trace
+    qDebug()<<"DoubleClick";
+
+    // adapt coordinate system to scene
+    QPointF p = this->mapToScene(e->pos());
+
+    // get coordinates as integers
+    int x = p.x();
+    int y = p.y();
+
+    // notify the current working mode
+    mode.get()->Event_MouseDoubleClick(x,y,e->buttons(), e->modifiers());
+    // update last mouse position
+    pLast = e->globalPosition();
+    // propagate event
+    QGraphicsView::mouseDoubleClickEvent(e);
+}
+
+/**
+ * @brief EditorView::wheelEvent event that deals with mous ewheel scrolling
+ *  this event will be used to zoom in or zoom out the viewport
+ * @param event event information
+ *
+ */
+void EditorView::wheelEvent(QWheelEvent *event)
+{
+
+    // get current transformation anchor and store it for later
+    const ViewportAnchor anchor = transformationAnchor();
+    // zoom considering the mouse position as starting point so anchor under mouse
+    setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+    // get scroll direction
+    int angle = event->angleDelta().y();
+    // zoom/scale amount (in or out9
+    qreal factor;
+    if (angle > 0) {
+        factor = 1.1;
+    } else {
+        factor = 0.9;
+    }
+    // scale graphicsview
+    scale(factor, factor);
+    // restore previous transformation anchor
+    setTransformationAnchor(anchor);
+    // propagate event
+    QGraphicsView::wheelEvent(event);
+
 }

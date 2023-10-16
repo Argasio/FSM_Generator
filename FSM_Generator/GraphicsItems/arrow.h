@@ -15,6 +15,7 @@ public:
                   const QStyleOptionGraphicsItem *option,
                   QWidget *widget);
     QRectF boundingRect() const;
+
 };
 
 #endif // ARROW_H

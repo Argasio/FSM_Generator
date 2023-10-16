@@ -15,6 +15,8 @@ class EditorView : public QGraphicsView
     DiagramScene* diagram;
     ///@brief current mode in the editor
     QScopedPointer<EditorMode> mode;
+    ///@brief used to track mouse position cahnges during drag events
+    QPointF pLast;
 public:
     explicit EditorView(QWidget *parent = nullptr, QRect rect = QRect(0,0, 200, 200));
 
@@ -23,9 +25,14 @@ public:
     void setMode(EditorMode *newMode);
     void mousePressEvent(QMouseEvent  *event);
     void mouseMoveEvent(QMouseEvent *event);
+    void mouseDoubleClickEvent( QMouseEvent * e );
+    void wheelEvent(QWheelEvent *event);
+
 
 signals:
     void mouseMoveCb(int x, int y);
+protected:
+
 };
 
 #endif // EDITORVIEW_H
